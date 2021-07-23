@@ -34,26 +34,31 @@
     paths[uid].strokeColor = randColor;
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
+    // https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+    const urlParams = new URLSearchParams(window.location.search);
+    const size = urlParams.get('size');
 
     var socket = new WebSocket(
         'ws://' + window.location.host + '/ws/draw');
 
     tool.onMouseMove = function(event) { //http://paperjs.org/reference/tool/ path examples
-       paths[uid].add(event.point);
-       // You may need to add code here if you want to pass any other information.
-       socket.send(JSON.stringify({
+      if (size=="small") {
+        paths[uid].add(event.point);
+        // You may need to add code here if you want to pass any other information.
+        socket.send(JSON.stringify({
          "x" : event.point.x,
          "y" : event.point.y,
          "uid" : uid,
          "col" : randColor
-       }));
+        }));
+      }
     }
 
     socket.onmessage = function(receivedMessage) {
         var received = JSON.parse(receivedMessage.data);
         console.log("Received: " + JSON.stringify(received));
         // You will probably want to add some code here to draw more lines.
-        if (received.uid != uid) {
+        if (size == "large") {
           if (!paths[received.uid]) {
             paths[received.uid] = new paper.Path();
             paths[received.uid].strokeColor = received.col;
